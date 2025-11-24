@@ -1,0 +1,37 @@
+{
+  "channel_id": "UCoAaFw8Xr7efsTQo2HxW2Ag",
+  "uploaded_count": 3,
+  "last_run_date": "2025-11-24T19:31:32.083342",
+  "upload_history": [
+    {
+      "date": "2025-11-24T19:31:32.083392",
+      "videos": [
+        {
+          "video_id": "dE9CiMkYaOE",
+          "title": "video_1",
+          "url": "https://www.youtube.com/watch?v=dE9CiMkYaOE",
+          "scheduled_time": "2026-05-23T20:00:00"
+        },
+        {
+          "video_id": "Pxu5OxBYxoE",
+          "title": "video_2",
+          "url": "https://www.youtube.com/watch?v=Pxu5OxBYxoE",
+          "scheduled_time": "2026-05-23T20:15:00"
+        },
+        {
+          "video_id": "2evZD3iaA2I",
+          "title": "video_3",
+          "url": "https://www.youtube.com/watch?v=2evZD3iaA2I",
+          "scheduled_time": "2026-05-23T20:30:00"
+        }
+      ],
+      "ip_info": {
+        "ip": "52.161.69.162",
+        "city": "Cheyenne",
+        "region": "Wyoming",
+        "country": "United States",
+        "org": "Microsoft Corporation"
+      }
+    }
+  ]
+}
