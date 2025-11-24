@@ -3,6 +3,7 @@
 Simple YouTube Video Uploader
 - Upload from Google Drive
 - Schedule 6 months from upload date
+- Auto-delete uploaded links from videos.txt
 - Track progress automatically
 - GitHub Actions compatible
 """
@@ -48,7 +49,12 @@ class YouTubeUploader:
         # Initialize
         self.youtube = None
         self.tracker = {}
-        
+    
+    def save_tracker(self):
+        """Save progress"""
+        with open(self.tracker_file, 'w') as f:
+            json.dump(self.tracker, f, indent=2)
+    
     def get_my_ip_info(self):
         """Get upload IP and location - Multiple fallback APIs"""
         
@@ -167,46 +173,6 @@ class YouTubeUploader:
                 'upload_history': []
             }
             print("\n📊 New tracker created")
-    
-    def remove_uploaded_links(self, video_indices):
-        """Remove uploaded video links from videos.txt"""
-        try:
-            print(f"\n🗑️ Cleaning up videos.txt...")
-            
-            # Read all lines
-            with open(self.videos_file, 'r') as f:
-                lines = f.readlines()
-            
-            # Keep original formatting (comments, empty lines)
-            all_lines = []
-            video_count = 0
-            
-            for line in lines:
-                # Skip empty lines and comments
-                if not line.strip() or line.strip().startswith('#'):
-                    all_lines.append(line)
-                    continue
-                
-                # Check if this video index was uploaded
-                if video_count not in video_indices:
-                    all_lines.append(line)
-                else:
-                    print(f"   ✅ Removed: Video #{video_count + 1}")
-                
-                video_count += 1
-            
-            # Write back
-            with open(self.videos_file, 'w') as f:
-                f.writelines(all_lines)
-            
-            remaining = sum(1 for line in all_lines if line.strip() and not line.strip().startswith('#'))
-            print(f"   📊 Remaining links: {remaining}")
-            
-            return True
-            
-        except Exception as e:
-            print(f"   ⚠️ Could not update videos.txt: {e}")
-            return False
     
     def load_video_links(self):
         """Load video links from videos.txt"""
@@ -373,6 +339,55 @@ class YouTubeUploader:
             print(f"\n❌ Upload failed: {e}")
             return None
     
+    def remove_uploaded_links(self, count):
+        """Remove first N uploaded links from videos.txt"""
+        try:
+            print(f"\n🗑️ Cleaning up videos.txt...")
+            print(f"   Removing first {count} uploaded links...")
+            
+            # Read all lines
+            with open(self.videos_file, 'r') as f:
+                lines = f.readlines()
+            
+            # Separate video links from comments/empty lines
+            video_lines = []
+            other_lines = []
+            
+            for line in lines:
+                if line.strip() and not line.strip().startswith('#'):
+                    video_lines.append(line)
+                else:
+                    other_lines.append(line)
+            
+            # Remove first N video links
+            if len(video_lines) >= count:
+                removed = video_lines[:count]
+                remaining_videos = video_lines[count:]
+                
+                for i in range(count):
+                    print(f"   ✅ Removed: Link #{i + 1}")
+                
+                # Write back (comments + remaining videos)
+                with open(self.videos_file, 'w') as f:
+                    # Write comments first
+                    for line in other_lines:
+                        f.write(line)
+                    # Write remaining videos
+                    for line in remaining_videos:
+                        f.write(line)
+                
+                print(f"   📊 Remaining links: {len(remaining_videos)}")
+                return True
+            else:
+                print(f"   ⚠️ Expected {count} links but found {len(video_lines)}")
+                return False
+            
+        except Exception as e:
+            print(f"   ⚠️ Could not update videos.txt: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+    
     def run(self):
         """Main execution"""
         
@@ -412,7 +427,6 @@ class YouTubeUploader:
         
         # Upload videos
         upload_results = []
-        uploaded_indices = []  # Indices to remove (always 0,1,2... from top)
         
         for i, drive_url in enumerate(today_videos):
             print(f"\n{'='*70}")
@@ -431,7 +445,6 @@ class YouTubeUploader:
             
             if result:
                 upload_results.append(result)
-                uploaded_indices.append(i)  # Always 0, 1, 2... (top of list)
                 self.tracker['uploaded_count'] += 1
             
             # Cleanup
@@ -441,9 +454,9 @@ class YouTubeUploader:
             except:
                 pass
         
-        # Remove uploaded links from videos.txt (removes from top)
-        if uploaded_indices:
-            self.remove_uploaded_links(uploaded_indices)
+        # Remove uploaded links from videos.txt (remove count from top)
+        if upload_results:
+            self.remove_uploaded_links(len(upload_results))
         
         # Update tracker
         self.tracker['last_run_date'] = datetime.now().isoformat()
@@ -467,7 +480,7 @@ class YouTubeUploader:
             f.write(f"Country: {ip_info['country']}\n")
             f.write(f"ISP/Organization: {ip_info['org']}\n\n")
             f.write(f"Videos Uploaded: {len(upload_results)}\n")
-            f.write(f"Total Progress: {self.tracker['uploaded_count']}/{self.tracker['total_videos']}\n\n")
+            f.write(f"Total Lifetime: {self.tracker['uploaded_count']} videos\n\n")
             f.write("="*70 + "\n")
             f.write("Video Details:\n")
             f.write("="*70 + "\n")
@@ -513,6 +526,7 @@ def main():
     print("="*70)
     print("✅ Upload from Google Drive")
     print("✅ Schedule 6 months ahead")
+    print("✅ Auto-delete uploaded links")
     print("✅ Auto progress tracking")
     print("✅ GitHub Actions compatible")
     print("="*70)
