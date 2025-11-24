@@ -1,7 +1,7 @@
 {
   "channel_id": "UCoAaFw8Xr7efsTQo2HxW2Ag",
-  "uploaded_count": 3,
-  "last_run_date": "2025-11-24T19:31:32.083342",
+  "uploaded_count": 4,
+  "last_run_date": "2025-11-24T19:33:56.253140",
   "upload_history": [
     {
       "date": "2025-11-24T19:31:32.083392",
@@ -31,6 +31,24 @@
         "region": "Wyoming",
         "country": "United States",
         "org": "Microsoft Corporation"
+      }
+    },
+    {
+      "date": "2025-11-24T19:33:56.253150",
+      "videos": [
+        {
+          "video_id": "YqUChH3pLIQ",
+          "title": "video_1",
+          "url": "https://www.youtube.com/watch?v=YqUChH3pLIQ",
+          "scheduled_time": "2026-05-23T20:00:00"
+        }
+      ],
+      "ip_info": {
+        "ip": "172.183.132.72",
+        "city": "Chicago",
+        "region": "Illinois",
+        "country": "United States",
+        "org": "Microsoft"
       }
     }
   ]
